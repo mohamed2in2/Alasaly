@@ -13,14 +13,33 @@
 
     <style>
         :root {
-            --sand: #f8f2e5;
-            --ink: #0f1720;
-            --card: rgba(255, 255, 255, 0.94);
-            --accent: #cc4b2c;
-            --accent-strong: #a53d24;
-            --muted: #5f676f;
-            --ring: rgba(204, 75, 44, 0.25);
-            --shadow: 0 22px 50px rgba(15, 23, 32, 0.25);
+            --sand: #e9f4f2;
+            --ink: #122024;
+            --card: rgba(255, 255, 255, 0.92);
+            --accent: #1f7f71;
+            --accent-strong: #185c52;
+            --muted: #4d6167;
+            --ring: rgba(31, 127, 113, 0.25);
+            --shadow: 0 22px 50px rgba(10, 42, 47, 0.2);
+            --surface: linear-gradient(160deg, #eaf6f4 0%, #deece9 100%);
+            --hero-start: #133537;
+            --hero-end: #2b6463;
+            --hero-orb: linear-gradient(45deg, #6ec8b7, #b0e9de);
+        }
+
+        [data-theme='dark'] {
+            --sand: #081517;
+            --ink: #eaf5f2;
+            --card: rgba(10, 25, 27, 0.9);
+            --accent: #66b5a7;
+            --accent-strong: #419786;
+            --muted: #a9c4be;
+            --ring: rgba(102, 181, 167, 0.3);
+            --shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
+            --surface: linear-gradient(160deg, #081517 0%, #112529 100%);
+            --hero-start: #041113;
+            --hero-end: #1c4a48;
+            --hero-orb: linear-gradient(45deg, #4a9e90, #7bc7ba);
         }
 
         * {
@@ -31,15 +50,16 @@
             margin: 0;
             min-height: 100vh;
             background:
-                radial-gradient(circle at 15% 10%, #f6d5a8 0%, transparent 26%),
-                radial-gradient(circle at 82% 82%, #f0b7a0 0%, transparent 28%),
-                linear-gradient(160deg, #f1e7d0 0%, #e6ddca 100%);
+                radial-gradient(circle at 15% 10%, rgba(142, 200, 191, 0.4) 0%, transparent 26%),
+                radial-gradient(circle at 82% 82%, rgba(96, 164, 151, 0.25) 0%, transparent 28%),
+                var(--surface);
             font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
             color: var(--ink);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem 1rem;
+            transition: background 0.25s ease, color 0.2s ease;
         }
 
         .layout {
@@ -57,7 +77,7 @@
         }
 
         .hero {
-            background: linear-gradient(135deg, #1f2a2f 0%, #2b373d 45%, #37464d 100%);
+            background: linear-gradient(135deg, var(--hero-start) 0%, var(--hero-end) 100%);
             color: #f6f6f0;
             padding: clamp(1.7rem, 2.6vw, 2.6rem);
             position: relative;
@@ -76,7 +96,34 @@
             top: -95px;
             right: -95px;
             background: linear-gradient(45deg, #e58c6f, #f8c5aa);
+            background: var(--hero-orb);
             opacity: 0.6;
+        }
+
+        .top-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 3;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .ghost-btn {
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+            color: #f8fffd;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.78rem;
+            border-radius: 999px;
+            padding: 0.42rem 0.75rem;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .ghost-btn:hover {
+            background: rgba(255, 255, 255, 0.17);
         }
 
         .hero .label {
@@ -160,7 +207,7 @@
             font-size: 0.84rem;
             letter-spacing: 0.07em;
             text-transform: uppercase;
-            color: #2a3036;
+            color: var(--ink);
             font-weight: 700;
         }
 
@@ -174,7 +221,14 @@
             border-radius: 14px;
             padding: 0.76rem 0.8rem;
             transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--ink);
             background: #ffffff;
+        }
+
+        [data-theme='dark'] #codeInput {
+            border-color: rgba(111, 173, 162, 0.35);
+            background: rgba(8, 21, 23, 0.82);
+            color: #effaf6;
         }
 
         #codeInput:focus {
@@ -192,9 +246,9 @@
             font-weight: 700;
             letter-spacing: 0.04em;
             color: #fff;
-            background: linear-gradient(130deg, var(--accent) 0%, #db6243 100%);
+            background: linear-gradient(130deg, var(--accent) 0%, #53a99b 100%);
             transition: transform 0.14s, box-shadow 0.2s, filter 0.2s;
-            box-shadow: 0 14px 26px rgba(204, 75, 44, 0.26);
+            box-shadow: 0 14px 26px rgba(31, 127, 113, 0.26);
         }
 
         #submitBtn:hover {
@@ -231,8 +285,38 @@
             border-radius: 24px;
             overflow: hidden;
             box-shadow: var(--shadow);
-            background: #000;
+            background: rgba(255, 255, 255, 0.78);
             animation: reveal 320ms ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        [data-theme='dark'] #videoArea {
+            background: rgba(8, 21, 23, 0.85);
+            border-color: rgba(103, 167, 156, 0.25);
+        }
+
+        .loader-card {
+            text-align: left;
+            padding: 1.2rem;
+            background: transparent;
+        }
+
+        .loader-card h3 {
+            margin: 0;
+            font-family: 'Source Serif 4', Georgia, serif;
+            color: var(--ink);
+        }
+
+        .loader-card p {
+            margin: 0.45rem 0 0;
+            color: var(--muted);
+        }
+
+        .loader-steps {
+            margin: 0.9rem 0 0;
+            padding-left: 1rem;
+            color: var(--muted);
+            font-size: 0.92rem;
         }
 
         #videoArea .ratio {
@@ -279,24 +363,28 @@
 <body>
     <main class="layout" id="introLayout">
         <section class="hero" aria-label="Portal Intro">
+            <div class="top-actions">
+                <a class="ghost-btn" href="index.php">Home</a>
+                <button id="themeToggle" class="ghost-btn" type="button">Night Mode</button>
+            </div>
             <div>
-                <span class="label">Private Lesson Access</span>
-                <h1>Enter once. Learn without interruptions.</h1>
+                <span class="label">Senior 1 Private Lesson Access</span>
+                <h1>Verify once. Watch deeply. Apply immediately.</h1>
                 <p>
-                    This portal verifies your one-time access code and opens your secured video lesson instantly.
-                    Codes are case-insensitive and can only be used once.
+                    This portal verifies your one-time access code and opens your secured Senior 1 lesson instantly.
+                    Every session is designed to build analysis, writing, and leadership clarity.
                 </p>
             </div>
             <div class="facts" aria-label="Portal Facts">
                 <article class="fact"><strong>1-Time</strong><span>Single-use access code</span></article>
-                <article class="fact"><strong>2-Hour</strong><span>Signed playback window</span></article>
-                <article class="fact"><strong>Secure</strong><span>Tokenized stream URL</span></article>
+                <article class="fact"><strong>Senior 1</strong><span>Structured documentary learning</span></article>
+                <article class="fact"><strong>Secure</strong><span>Session-bound watch URL</span></article>
             </div>
         </section>
 
         <section class="portal-card" id="portalCard" aria-label="Enter Access Code">
             <h2>Access Code</h2>
-            <p class="sub">Use the code you received from your instructor to unlock your lesson video.</p>
+            <p class="sub">Use your instructor code to unlock the next Senior 1 lesson. Keep a notebook ready for reflection points.</p>
 
             <label for="codeInput" class="code-label">Code format: 10 characters</label>
             <input
@@ -315,14 +403,19 @@
                 <span id="btnText">Open Lesson</span>
                 <span id="btnSpinner" class="spinner-border ms-2 d-none" role="status" aria-hidden="true"></span>
             </button>
-            <p class="helper">If your code is valid, your video will load below immediately.</p>
+            <p class="helper">If your code is valid, your custom watch space will open in seconds.</p>
         </section>
     </main>
 
     <section id="videoArea" aria-label="Preparing Player">
-        <div class="p-4 bg-white rounded-4 text-center">
-            <h3 class="mb-2">Preparing your secure player</h3>
-            <p class="text-muted mb-0">Please wait while we open your protected watch session...</p>
+        <div class="loader-card">
+            <h3>Preparing your Senior 1 watch space</h3>
+            <p>Please wait while we open your protected session and attach your learner watermark.</p>
+            <ul class="loader-steps">
+                <li>Validating code and session identity</li>
+                <li>Loading protected player URL</li>
+                <li>Opening your personalized watch room</li>
+            </ul>
         </div>
     </section>
 
@@ -334,7 +427,27 @@
     const btnText = document.getElementById('btnText');
     const spinner = document.getElementById('btnSpinner');
     const submitBtn = document.getElementById('submitBtn');
+    const root = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
     const urlParams = new URLSearchParams(window.location.search);
+        const savedTheme = localStorage.getItem('alasly-theme');
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            root.setAttribute('data-theme', savedTheme);
+        }
+
+        function syncThemeLabel() {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            themeToggle.textContent = isDark ? 'Day Mode' : 'Night Mode';
+        }
+
+        syncThemeLabel();
+        themeToggle.addEventListener('click', function () {
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('alasly-theme', next);
+            syncThemeLabel();
+        });
+
     const initialCode = urlParams.get('code');
     const previewMode = urlParams.get('preview') === '1';
 
@@ -389,7 +502,7 @@
                 icon: 'warning',
                 title: 'Enter a valid code',
                 text: 'Codes must be 10 characters long.',
-                confirmButtonColor: '#cc4b2c'
+                confirmButtonColor: getComputedStyle(root).getPropertyValue('--accent').trim()
             });
             input.focus();
             return;
@@ -420,7 +533,7 @@
                     icon: 'error',
                     title: 'Access denied',
                     text: data.message || 'Invalid or expired code.',
-                    confirmButtonColor: '#cc4b2c'
+                    confirmButtonColor: getComputedStyle(root).getPropertyValue('--accent').trim()
                 });
                 input.select();
                 return;
@@ -441,7 +554,7 @@
                 icon: 'error',
                 title: 'Connection error',
                 text: error.message || 'Could not verify your code. Please try again.',
-                confirmButtonColor: '#cc4b2c'
+                confirmButtonColor: getComputedStyle(root).getPropertyValue('--accent').trim()
             });
         } finally {
             submitBtn.disabled = false;

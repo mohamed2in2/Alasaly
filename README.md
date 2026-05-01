@@ -1,14 +1,20 @@
-# Alasaly - Secure Video Access Portal
+# Alasaly - Senior 1 Learning Platform
 
-This project provides:
-- A student portal that verifies one-time access codes and opens a signed Bunny Stream URL.
-- An admin panel that generates and stores access codes in MySQL.
+Alasaly is a secure documentary and talks platform for Senior 1 learners.
+
+Core features:
+
+- Public landing page with curated Senior 1 learning tracks.
+- Student portal for one-time code verification.
+- Session-bound secure watch page with anti-sharing protections.
+- Admin code generation workflow backed by MySQL.
+- Persistent night mode support across key pages.
 
 ## 1. Requirements
 
 - PHP 8.1+
 - MySQL or MariaDB
-- Bunny Stream library and token security key
+- Bunny Stream library and token security key (for production streaming)
 
 ## 2. Project Setup
 
@@ -24,7 +30,7 @@ mysql -u root -p < database.sql
 cp .env.example .env
 ```
 
-3. Edit `.env` and fill your real values:
+3. Edit `.env` and fill your own values:
 
 ```env
 BUNNY_LIBRARY_ID=your_library_id
@@ -53,6 +59,7 @@ Then open:
 - Main page: http://localhost:8000/index.php
 - Student page: http://localhost:8000/portal.php
 - Admin page: http://localhost:8000/generate.php
+- Watch page (session redirect target): http://localhost:8000/watch.php
 
 ## 4. How to Test the App
 
@@ -157,3 +164,18 @@ If Bunny keys are missing, the app responds safely with a configuration error me
 - Optional one-time watch tokens can be enforced via `WATCH_ONE_TIME_USE=1`.
 - Optional on-screen watermark overlay is controlled via `WATCH_WATERMARK_ENABLED=1`.
 - You can block abusive networks via `BANNED_IPS` (exact IPs or CIDR ranges).
+
+## 7. UX Notes
+
+- Night mode is available on the landing page, portal, and watch page.
+- Senior 1-specific text and learning prompts are included across the app.
+- The watch page includes a customized learning sidebar with checkpoints and local notes.
+
+## 8. Publish on GitHub
+
+Before pushing publicly:
+
+1. Ensure `.env` is not committed.
+2. Ensure `.env.example` contains placeholders only.
+3. Ensure no real keys/passwords appear in docs, screenshots, or commit history.
+4. Keep admin pages behind authentication in production.

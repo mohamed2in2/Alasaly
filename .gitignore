@@ -1,1 +1,17 @@
 .env
+.env.local
+.env.*.local
+
+# Runtime and logs
+*.log
+logs/
+
+# Dependency/vendor directories
+vendor/
+node_modules/
+
+# System/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

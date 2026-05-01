@@ -53,22 +53,22 @@ if ($invalid) {
             display: grid;
             place-items: center;
             font-family: system-ui, -apple-system, Segoe UI, sans-serif;
-            background: linear-gradient(135deg, #2a1b10, #6f481d);
+            background: linear-gradient(135deg, #0e2425, #2f6860);
             color: #fff6e3;
             padding: 1rem;
         }
 
         .box {
             max-width: 540px;
-            border: 1px solid rgba(255, 230, 177, 0.35);
-            background: rgba(30, 18, 8, 0.6);
+            border: 1px solid rgba(149, 220, 206, 0.35);
+            background: rgba(5, 26, 24, 0.62);
             border-radius: 16px;
             padding: 1.2rem;
             text-align: center;
         }
 
         a {
-            color: #ffd38a;
+            color: #a7f0df;
             font-weight: 700;
         }
     </style>
@@ -116,13 +116,31 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
 
     <style>
         :root {
-            --bg1: #120e08;
-            --bg2: #3a2a14;
-            --gold1: #f6d48f;
-            --gold2: #cc9a43;
-            --ink: #211606;
-            --paper: rgba(255, 247, 227, 0.93);
-            --muted: #6b5836;
+            --bg1: #091517;
+            --bg2: #1e3f40;
+            --accent1: #8dd0c1;
+            --accent2: #4ba895;
+            --ink: #102327;
+            --paper: rgba(244, 252, 250, 0.95);
+            --muted: #4f666d;
+            --shell: rgba(7, 22, 24, 0.62);
+            --shell-border: rgba(141, 208, 193, 0.3);
+            --pill: rgba(238, 255, 251, 0.08);
+            --body-ink: #effcf7;
+        }
+
+        [data-theme='light'] {
+            --bg1: #e7f3f1;
+            --bg2: #d3e7e2;
+            --accent1: #2f8275;
+            --accent2: #1f6258;
+            --ink: #112225;
+            --paper: rgba(255, 255, 255, 0.95);
+            --muted: #476067;
+            --shell: rgba(255, 255, 255, 0.78);
+            --shell-border: rgba(56, 126, 115, 0.22);
+            --pill: rgba(41, 108, 97, 0.08);
+            --body-ink: #102124;
         }
 
         * {
@@ -134,11 +152,12 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
             min-height: 100vh;
             font-family: 'Manrope', system-ui, sans-serif;
             background:
-                radial-gradient(circle at 12% 6%, rgba(245, 192, 115, 0.24), transparent 28%),
-                radial-gradient(circle at 88% 88%, rgba(245, 215, 146, 0.2), transparent 28%),
+                radial-gradient(circle at 12% 6%, rgba(141, 208, 193, 0.22), transparent 28%),
+                radial-gradient(circle at 88% 88%, rgba(75, 168, 149, 0.19), transparent 28%),
                 linear-gradient(140deg, var(--bg1), var(--bg2));
-            color: #fff7e6;
+            color: var(--body-ink);
             padding: 1rem;
+            transition: background 0.25s ease, color 0.2s ease;
         }
 
         .wrap {
@@ -148,8 +167,8 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
 
         .top {
             border-radius: 18px;
-            border: 1px solid rgba(248, 220, 162, 0.3);
-            background: rgba(23, 16, 9, 0.5);
+            border: 1px solid var(--shell-border);
+            background: var(--shell);
             padding: 0.85rem 1rem;
             display: flex;
             align-items: center;
@@ -168,15 +187,27 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .pill {
-            border: 1px solid rgba(246, 212, 143, 0.36);
+            border: 1px solid var(--shell-border);
             border-radius: 999px;
             padding: 0.32rem 0.62rem;
             font-size: 0.76rem;
-            color: #f8e6bf;
-            background: rgba(255, 247, 229, 0.06);
+            color: var(--body-ink);
+            background: var(--pill);
+        }
+
+        .mode {
+            border: 1px solid var(--shell-border);
+            border-radius: 999px;
+            padding: 0.35rem 0.72rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--body-ink);
+            background: transparent;
+            cursor: pointer;
         }
 
         .layout {
@@ -187,10 +218,35 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
 
         .player-shell {
             border-radius: 22px;
-            border: 1px solid rgba(246, 212, 143, 0.32);
-            background: rgba(19, 13, 7, 0.6);
+            border: 1px solid var(--shell-border);
+            background: var(--shell);
             padding: 0.85rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.36);
+        }
+
+        .player-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            align-items: baseline;
+            margin-bottom: 0.75rem;
+        }
+
+        .player-head h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-family: 'Prata', Georgia, serif;
+            letter-spacing: 0.01em;
+        }
+
+        .player-head p {
+            margin: 0;
+            color: #bed7d2;
+            font-size: 0.82rem;
+        }
+
+        [data-theme='light'] .player-head p {
+            color: #4b6970;
         }
 
         .ratio {
@@ -241,7 +297,7 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
         .side {
             border-radius: 22px;
             background: var(--paper);
-            border: 1px solid rgba(246, 212, 143, 0.5);
+            border: 1px solid var(--shell-border);
             padding: 1rem;
             color: var(--ink);
         }
@@ -280,8 +336,52 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
             font-weight: 800;
             border-radius: 10px;
             padding: 0.55rem 0.72rem;
-            color: #fffaf0;
-            background: linear-gradient(145deg, var(--gold2), #926225);
+            color: #f7fffd;
+            background: linear-gradient(145deg, var(--accent1), var(--accent2));
+        }
+
+        .study-tools {
+            margin-top: 0.85rem;
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .study-box {
+            border: 1px solid rgba(71, 113, 122, 0.22);
+            border-radius: 12px;
+            padding: 0.62rem;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        [data-theme='light'] .study-box {
+            background: rgba(223, 239, 236, 0.38);
+        }
+
+        .study-box strong {
+            display: block;
+            font-size: 0.86rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .study-box textarea {
+            width: 100%;
+            min-height: 86px;
+            border: 1px solid rgba(76, 112, 112, 0.3);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.84rem;
+            padding: 0.5rem;
+            resize: vertical;
+            color: var(--ink);
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .checkpoint-list {
+            margin: 0;
+            padding-left: 1rem;
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.5;
         }
 
         @media (max-width: 980px) {
@@ -299,11 +399,16 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
                 <span class="pill">Session Protected</span>
                 <span class="pill">Link Sharing Restricted</span>
                 <span class="pill">Senior 1 Track</span>
+                <button class="mode" id="themeToggle" type="button">Light Mode</button>
             </div>
         </header>
 
         <section class="layout">
             <article class="player-shell" aria-label="Video Player">
+                <div class="player-head">
+                    <h1>Senior 1 Watch Room</h1>
+                    <p>Focus mode: pause every 10 minutes and write one insight.</p>
+                </div>
                 <div class="ratio">
                     <iframe
                         src="<?= htmlspecialchars($streamUrl, ENT_QUOTES, 'UTF-8') ?>"
@@ -327,7 +432,7 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
             </article>
 
             <aside class="side" aria-label="Lesson Details">
-                <h2>Now Watching</h2>
+                <h2>Now Watching: Senior 1 Session</h2>
                 <p>
                     Your watch session is tied to this browser session. If this page expires, return to the portal and verify your code again.
                 </p>
@@ -339,10 +444,59 @@ $watermarkText = 'Alasly | SESSION ' . $issuedAtText . ' | IP: ' . $clientIp;
                     <li>This watch link is one-time use per verification.</li>
                     <?php endif; ?>
                 </ul>
+
+                <div class="study-tools">
+                    <div class="study-box">
+                        <strong>Checkpoint Prompts</strong>
+                        <ol class="checkpoint-list">
+                            <li>What was the strongest argument made so far?</li>
+                            <li>Which real-life Senior 1 challenge does this connect to?</li>
+                            <li>What action will you apply this week?</li>
+                        </ol>
+                    </div>
+                    <div class="study-box">
+                        <strong>My quick takeaway</strong>
+                        <textarea id="quickNote" placeholder="Write your key takeaway here..."></textarea>
+                    </div>
+                </div>
+
                 <p class="small">Issued at: <?= htmlspecialchars($issuedAtText, ENT_QUOTES, 'UTF-8') ?></p>
                 <a class="back" href="portal.php">Back to Access Portal</a>
             </aside>
         </section>
     </main>
+
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const note = document.getElementById('quickNote');
+            const themeKey = 'alasly-theme';
+            const noteKey = 'alasly-watch-note';
+
+            const savedTheme = localStorage.getItem(themeKey);
+            if (savedTheme === 'light' || savedTheme === 'dark') {
+                root.setAttribute('data-theme', savedTheme);
+            }
+
+            const syncThemeLabel = function () {
+                const isLight = root.getAttribute('data-theme') === 'light';
+                toggle.textContent = isLight ? 'Night Mode' : 'Light Mode';
+            };
+
+            syncThemeLabel();
+            toggle.addEventListener('click', function () {
+                const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                root.setAttribute('data-theme', next);
+                localStorage.setItem(themeKey, next);
+                syncThemeLabel();
+            });
+
+            note.value = localStorage.getItem(noteKey) || '';
+            note.addEventListener('input', function () {
+                localStorage.setItem(noteKey, note.value);
+            });
+        })();
+    </script>
 </body>
 </html>

@@ -1,189 +1,87 @@
-# 🎥 Your Video Portal - Setup Complete! ✅
+# Alasaly Setup Guide
 
-## 📍 Access Your System
+This guide is safe to keep in a public GitHub repository.
 
-**Live Test Server:** `http://localhost:8000`
+## 1. Requirements
 
-### Quick Links:
-- **Main Portal** → http://localhost:8000/portal.php
-- **Add Videos (Admin)** → http://localhost:8000/add_video.php
-- **System Test** → http://localhost:8000/test.php
-- **System Status** → http://localhost:8000/status.php
+- PHP 8.1+
+- MySQL or MariaDB
+- Web browser
 
----
+Optional (for real streaming):
 
-## 🔐 Admin Credentials
+- Bunny Stream account and API credentials
 
-```
-Username: (anyone)
-Password: admin123
-```
+## 2. Clone and Prepare
 
----
+1. Clone the repository.
+2. Move into the project folder.
+3. Copy environment template:
 
-## 🚀 How It Works
-
-### For Admins (You):
-1. Open **Add Videos** page
-2. Enter password: `admin123`
-3. System stores your Bunny video
-4. Get a 10-character access code (e.g., `A3F7C9B2E1`)
-5. Share the code with students
-
-### For Students:
-1. Open **Portal** page
-2. Enter the 10-character code
-3. Watch the video from Bunny Stream directly
-
----
-
-## 🎯 Test with Demo
-
-**Demo Code:** `DEMO1-PLAY9`
-
-Try it now:
-- Go to: http://localhost:8000/portal.php?code=DEMO1-PLAY9
-- Or manually enter: `DEMO1-PLAY9`
-- Watch the demo video play!
-
----
-
-## 📹 Your Video Details
-
-```
-Title: الجلسة الثانية الجزء الثاني
-Video ID: ee7964ca-5be8-4e00-918e-c73bc129f5e4
-Library: 650875
-CDN: vz-a3ef6e25-703.b-cdn.net
+```bash
+cp .env.example .env
 ```
 
-**To add your video:**
-1. Click "Add Video (Admin Area)"
-2. Login with `admin123`
-3. Your video gets stored automatically
-4. Copy the generated code
-5. Share with students!
+4. Edit `.env` and add your own values.
 
----
+Important:
 
-## 🔒 Security Features
+- Never commit `.env`.
+- Use placeholder values in screenshots and docs.
 
-✓ **Password-Protected Upload**
-- Only admins can add videos
-- Admin area requires password
+## 3. Database Setup
 
-✓ **One-Time Use Codes**
-- Each code can only be used once
-- Prevents unauthorized sharing
+Run the SQL migration file:
 
-✓ **Session-Based Access**
-- Watch sessions expire after 5 minutes
-- Each student gets their own secure session
-- Can't share links directly (session-bound)
-
-✓ **Direct Bunny Integration**
-- Videos stream from Bunny CDN
-- No password needed (security via codes)
-- Full support when security key is added later
-
----
-
-## 📊 System Status
-
-| Component | Status |
-|-----------|--------|
-| Portal Page | ✅ Working |
-| Admin Area | ✅ Protected |
-| Bunny Configuration | ✅ Ready |
-| Demo Mode | ✅ Active |
-| Database | ⏳ Optional (demo mode works without it) |
-
----
-
-## 🧪 What's Been Set Up
-
-### Files Created:
-- `add_video.php` - Admin video upload (password protected)
-- `test.php` - Testing dashboard
-- `status.php` - System status view
-
-### Files Updated:
-- `verify.php` - Now supports videos without security key
-- `.env` - Admin password added
-- `config.php` - All Bunny settings loaded
-
-### Security:
-- Password: `admin123` (change this in production!)
-- Login prevents unauthorized uploads
-- One-time codes prevent sharing abuse
-
----
-
-## 🎬 Video Flow
-
-```
-Admin adds video via add_video.php
-        ↓
-System generates 10-char code (e.g., A3F7C9B2E1)
-        ↓
-Admin shares code with students
-        ↓
-Students enter code in portal.php
-        ↓
-App fetches video from Bunny Stream
-        ↓
-Video plays in secure iframe
-        ↓
-Code marked as "used" (can't reuse)
+```bash
+mysql -u root -p < database.sql
 ```
 
----
+Or use your own DB credentials from `.env`.
 
-## ⚙️ Configuration
+## 4. Start the Local Server
 
-Your `.env` file has:
+```bash
+php -S localhost:8000
 ```
-BUNNY_LIBRARY_ID=650875
-BUNNY_API_KEY=886236f8-379d-4849-828c5c4f1918-0545-4a71
-BUNNY_CDN_HOSTNAME=vz-a3ef6e25-703.b-cdn.net
-BUNNY_PULL_ZONE=vz-a3ef6e25-703
-ADMIN_PASSWORD=admin123
+
+Open:
+
+- Home: http://localhost:8000/index.php
+- Student Portal: http://localhost:8000/portal.php
+- Admin Generator: http://localhost:8000/generate.php
+
+## 5. Demo Mode (Optional)
+
+Use demo mode if you want to test without full Bunny setup:
+
+```env
 DEMO_MODE_ENABLED=1
 DEMO_ACCESS_CODE=DEMO1-PLAY9
+DEMO_VIDEO_URL=https://www.youtube.com/embed/e1yDqlXin8g
 ```
 
----
+## 6. Production Checklist
 
-## 🎯 Next Steps
+- Set `DEMO_MODE_ENABLED=0`.
+- Add strong admin authentication for `generate.php` and `add_video.php`.
+- Use HTTPS.
+- Rotate secrets if they were ever exposed.
+- Configure restricted CORS/origin settings where applicable.
+- Keep `WATCH_ONE_TIME_USE=1` and tune `WATCH_ACCESS_TTL_SECONDS`.
 
-1. **Test the demo:** http://localhost:8000/test.php
-2. **Try adding a video:** http://localhost:8000/add_video.php (use `admin123`)
-3. **Change the admin password** in `.env` for production
-4. **Deploy to production** when ready
+## 7. Publish on GitHub
 
----
+Before pushing:
 
-## ✨ Features Included
+- Confirm `.env` is not tracked.
+- Confirm no real API keys in docs, screenshots, or commits.
+- Confirm `README.md` and `.env.example` only contain placeholders.
 
-✅ Password-protected admin area
-✅ Bunny Stream integration
-✅ One-time use access codes
-✅ Session-based security
-✅ Demo mode for testing
-✅ Beautiful UI (mobile-friendly)
-✅ Arabic support
-✅ Direct playback (no token auth needed yet)
+Then push:
 
----
-
-## 📞 Support
-
-If you encounter issues:
-1. Check `/status.php` - System status
-2. Check `.env` - Configuration
-3. Check browser console - JavaScript errors
-4. Test demo mode first - `DEMO1-PLAY9`
-
----
-
-**Everything is set up and ready! 🚀**
+```bash
+git add .
+git commit -m "Prepare app for GitHub publishing"
+git push origin main
+```
