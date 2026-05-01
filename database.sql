@@ -1,20 +1,28 @@
 -- database.sql
--- Run this script once in phpMyAdmin or any MySQL/MariaDB client.
--- It creates the database (if it doesn't exist) and the access_codes table.
+-- For PostgreSQL / Supabase: creates the private schema table and a public view
+-- so the REST API can access access_codes without exposing the private schema.
 
-CREATE DATABASE IF NOT EXISTS school_platform
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+create schema if not exists school_platform;
 
-USE school_platform;
+create table if not exists school_platform.access_codes (
+    id         bigserial primary key,
+    code       varchar(50)  not null,
+    video_id   varchar(255) not null,
+    is_used    boolean      not null default false,
+    created_at timestamp with time zone not null default now(),
+    used_at    timestamp with time zone null,
+    constraint uq_access_codes_code unique (code)
+);
 
-CREATE TABLE IF NOT EXISTS access_codes (
-    id         INT           NOT NULL AUTO_INCREMENT,
-    code       VARCHAR(50)   NOT NULL,
-    video_id   VARCHAR(255)  NOT NULL,
-    is_used    TINYINT(1)    NOT NULL DEFAULT 0,
-    created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    used_at    TIMESTAMP     NULL     DEFAULT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY uq_code (code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+create or replace view public.access_codes as
+select
+    id,
+    code,
+    video_id,
+    is_used,
+    created_at,
+    used_at
+from school_platform.access_codes;
+
+grant select, insert, update, delete on public.access_codes to service_role;
+grant usage on sequence school_platform.access_codes_id_seq to service_role;

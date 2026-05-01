@@ -1,124 +1,129 @@
 <?php
-/**
- * verify.php — Backend endpoint called via AJAX from index.php.
- *
- * POST parameters:
- *   code  (string)  The access code entered by the student.
- *
- * JSON response:
- *   { "success": true,  "video_url": "https://..." }
- *   { "success": false, "message": "Human-readable error" }
- *
- * "No-Crash" Policy:
- *   Every failure path returns a structured JSON response and never exposes raw errors.
- */
-
-declare(strict_types=1);
-
-require_once __DIR__ . '/config.php';
-
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/supabase.php';
 
-// ── Helper: send JSON and exit ────────────────────────────────────────────────
-function json_response(bool $success, string $message = '', string $video_url = ''): never {
-    $payload = ['success' => $success];
-    if ($success) {
-        $payload['video_url'] = $video_url;
-    } else {
-        $payload['message'] = $message;
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+    session_start();
+}
+
+function issue_watch_url(string $streamUrl): string {
+    session_regenerate_id(true);
+    $nonce = bin2hex(random_bytes(24));
+    $watchTtl = (int)env_value('WATCH_ACCESS_TTL_SECONDS', '300');
+    if ($watchTtl <= 0) {
+        $watchTtl = 300;
     }
-    echo json_encode($payload);
+    $_SESSION['watch_access'] = [
+        'stream_url' => $streamUrl,
+        'nonce' => $nonce,
+        'expires_at' => time() + $watchTtl,
+        'issued_at' => time(),
+        'ua' => hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'),
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? '',
+    ];
+
+    return 'watch.php?n=' . rawurlencode($nonce);
+}
+
+$payload = json_decode(file_get_contents('php://input'), true);
+if (!is_array($payload)) {
+    $payload = $_POST;
+}
+
+$rawCode = trim((string)($payload['code'] ?? ''));
+if ($rawCode === '') {
+    http_response_code(422);
+    echo json_encode(['success' => false, 'message' => 'code is required']);
     exit;
 }
 
-// ── 1. Accept only POST ───────────────────────────────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(false, 'Invalid request method.');
+$code = strtoupper($rawCode);
+
+if ((int)env_value('DEMO_MODE_ENABLED', '0') === 1 && hash_equals(env_value('DEMO_ACCESS_CODE', ''), $code)) {
+    $demoUrl = env_value('DEMO_VIDEO_URL', '');
+    echo json_encode([
+        'success' => true,
+        'video_url' => issue_watch_url($demoUrl),
+        'signed_url' => $demoUrl,
+    ]);
+    exit;
 }
 
-// ── 2. Validate and sanitise the incoming code ────────────────────────────────
-$raw_code = trim($_POST['code'] ?? '');
+$lookup = supabase_request('GET', 'access_codes', null, [
+    'code' => 'eq.' . $code,
+    'select' => 'id,video_id,is_used',
+    'limit' => '1',
+], false);
 
-if ($raw_code === '') {
-    json_response(false, 'Please enter an access code.');
+if ($lookup['status'] >= 400) {
+    error_log('verify.php lookup error: status=' . $lookup['status'] . ' body=' . $lookup['body']);
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database lookup failed']);
+    exit;
 }
 
-// Codes are generated in XXXXX-XXXXX format (5 alphanumeric + hyphen + 5 alphanumeric).
-if (!preg_match('/^[A-Z0-9]{5}-[A-Z0-9]{5}$/i', $raw_code)) {
-    json_response(false, 'Invalid code format. Codes look like XXXXX-XXXXX.');
-}
-
-$code = strtoupper($raw_code);
-
-// ── 3. Connect to DB (graceful failure) ───────────────────────────────────────
-try {
-    $pdo = create_pdo();
-} catch (RuntimeException $e) {
-    json_response(false, $e->getMessage());
-}
-
-// ── 4. Look up the code ───────────────────────────────────────────────────────
-try {
-    $stmt = $pdo->prepare(
-        'SELECT id, video_id, is_used FROM access_codes WHERE code = ? LIMIT 1'
-    );
-    $stmt->execute([$code]);
-    $row = $stmt->fetch();
-} catch (PDOException $e) {
-    error_log('[VideoPortal] DB query error: ' . $e->getMessage());
-    json_response(false, 'A database error occurred. Please try again.');
-}
+$rows = is_array($lookup['json']) ? $lookup['json'] : [];
+$row = $rows[0] ?? null;
 
 if (!$row) {
-    json_response(false, 'This code is invalid. Please check and try again.');
+    http_response_code(404);
+    echo json_encode(['success' => false, 'message' => 'Invalid code']);
+    exit;
 }
 
-if ((int)$row['is_used'] === 1) {
-    json_response(false, 'This code has already been used.');
+if (filter_var((string)($row['is_used'] ?? ''), FILTER_VALIDATE_BOOLEAN)) {
+    http_response_code(409);
+    echo json_encode(['success' => false, 'message' => 'Code already used']);
+    exit;
 }
 
-// ── 5. Check Bunny.net configuration before attempting token generation ────────
-$config_errors = get_config_errors();
-if (!empty($config_errors)) {
-    $detail = implode(' ', $config_errors);
-    error_log('[VideoPortal] Config error: ' . $detail);
-    json_response(false, 'System Configuration Error: Security keys are missing. Please contact the administrator.');
+$update = supabase_request('PATCH', 'access_codes?id=eq.' . rawurlencode((string)$row['id']), [
+    'is_used' => true,
+    'used_at' => gmdate('c'),
+], [], true);
+
+if ($update['status'] >= 400) {
+    error_log('verify.php update error: status=' . $update['status'] . ' body=' . $update['body']);
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Could not mark code as used']);
+    exit;
 }
 
-// ── 6. Generate Bunny.net Signed URL ─────────────────────────────────────────
-$video_id = $row['video_id'];
-$expires   = time() + BUNNY_TOKEN_EXPIRY;
+$bucket = env_value('STORAGE_BUCKET', '');
+$expires = (int)env_value('SIGNED_URL_EXPIRE_SECONDS', '3600');
+$videoId = (string)$row['video_id'];
+$libraryId = env_value('BUNNY_LIBRARY_ID', '');
 
-// Bunny.net token algorithm:
-//   token = base64url( SHA256( security_key + video_id + expires ) )
-// Reference: https://docs.bunny.net/docs/stream-signed-urls
-$hash_string = BUNNY_SECURITY_KEY . $video_id . $expires;
-$raw_hash    = hash('sha256', $hash_string, true);       // binary output
-$token       = rtrim(strtr(base64_encode($raw_hash), '+/', '-_'), '=');
-
-$video_url = sprintf(
-    'https://iframe.mediadelivery.net/embed/%s/%s?token=%s&expires=%d',
-    rawurlencode((string)BUNNY_LIBRARY_ID),
-    rawurlencode($video_id),
-    rawurlencode($token),
-    $expires
-);
-
-// ── 7. Mark code as used (atomic update) ─────────────────────────────────────
-try {
-    $update = $pdo->prepare(
-        'UPDATE access_codes SET is_used = 1, used_at = NOW() WHERE id = ? AND is_used = 0'
-    );
-    $update->execute([$row['id']]);
-
-    // If no row was updated another request already consumed the code (race condition).
-    if ($update->rowCount() === 0) {
-        json_response(false, 'This code has already been used.');
+$signedUrl = '';
+if ($bucket !== '') {
+    $sign = supabase_storage_sign_url($bucket, $videoId, $expires);
+    if ($sign['status'] < 400 && is_array($sign['json'])) {
+        $signedUrl = (string)($sign['json']['signedURL'] ?? $sign['json']['signed_url'] ?? '');
+    } else {
+        error_log('verify.php sign error: status=' . $sign['status'] . ' body=' . $sign['body']);
     }
-} catch (PDOException $e) {
-    error_log('[VideoPortal] DB update error: ' . $e->getMessage());
-    json_response(false, 'A database error occurred while validating your code.');
 }
 
-// ── 8. Return the signed URL ──────────────────────────────────────────────────
-json_response(true, '', $video_url);
+$videoUrl = $signedUrl;
+if ($videoUrl === '' && $libraryId !== '') {
+    $videoUrl = sprintf(
+        'https://player.mediadelivery.net/play/%s/%s',
+        rawurlencode($libraryId),
+        rawurlencode($videoId)
+    );
+}
+
+$watchUrl = $videoUrl !== '' ? issue_watch_url($videoUrl) : null;
+
+echo json_encode([
+    'success' => true,
+    'video_url' => $watchUrl,
+    'signed_url' => $signedUrl !== '' ? $signedUrl : null,
+    'video_id' => $videoId,
+]);
