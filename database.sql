@@ -1,4 +1,5 @@
 -- database.sql
+-- Made with love ❤️ — Alasly
 -- For PostgreSQL / Supabase: creates the private schema table and a public view
 -- so the REST API can access access_codes without exposing the private schema.
 
